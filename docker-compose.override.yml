@@ -1,0 +1,24 @@
+services:
+    phpmyadmin:
+        container_name: phpmyadmin
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - "8081:80"
+        environment:
+            PMA_HOST: db
+            PMA_USER: root
+            PMA_PASSWORD: secret
+        volumes:
+            - ./php-custom.ini:/usr/local/etc/php/conf.d/uploads.ini
+        depends_on:
+            - db
+        networks:
+            - project-network
+
+networks:
+    project-network:
+        driver: bridge
+
+volumes:
+    db_data:
+    redis_data:

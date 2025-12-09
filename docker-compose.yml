@@ -1,0 +1,78 @@
+services:
+  db:
+    container_name: db  # Nome do container (opcional)
+    image: mysql:latest  # Imagem do MySQL
+    ports:
+        - "3310:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: secret  # Senha do MySQL
+    volumes:
+      - db_data:/var/lib/mysql  # Volume para dados
+    networks:
+      - project-network  # Rede compartilhada
+
+  app:
+    container_name: app
+    build:
+      context: .  # Contexto de build
+      dockerfile: laravel.Dockerfile  # Dockerfile
+    volumes:
+      - .:/var/www/html  # Monta diretório
+    depends_on:
+      - db  # Depende do db
+    environment:
+      DB_HOST: db  # Banco de dados
+      DB_PORT: 3306  # Porta do db
+      DB_DATABASE: fragaebitelloc03  # Nome do db
+      DB_USERNAME: root  # Usuário do db
+      DB_PASSWORD: secret  # Senha do db
+    networks:
+      - project-network  # Rede compartilhada
+
+  webserver:
+    container_name: webserver
+    image: nginx:alpine  # Imagem do Nginx
+    volumes:
+      - .:/var/www/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf  # Configuração do Nginx
+    ports:
+      - "8010:80"  # Mapeamento de portas (alterado)
+    depends_on:
+      - app  # Depende da app
+    networks:
+      - project-network  # Rede compartilhada
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - project-network
+    restart: unless-stopped
+
+  horizon:
+    container_name: horizon
+    build:
+      context: .
+      dockerfile: laravel.Dockerfile
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - redis
+      - app
+      - db
+    networks:
+      - project-network
+    command: php artisan horizon
+    restart: unless-stopped
+
+networks:
+  project-network:  # Rede do projeto
+    driver: bridge  # Tipo de rede
+
+volumes:
+  db_data:  # Volume para dados do db
+  redis_data:  # Volume para dados do redis
