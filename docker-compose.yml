@@ -69,6 +69,20 @@ services:
     command: php artisan horizon
     restart: unless-stopped
 
+  ngrok:
+    container_name: ngrok
+    image: ngrok/ngrok:latest
+    restart: unless-stopped
+    command: ["http", "--authtoken", "${NGROK_AUTHTOKEN}", "webserver:80"]
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    ports:
+      - "4040:4040"
+    depends_on:
+      - webserver
+    networks:
+      - project-network
+
 networks:
   project-network:  # Rede do projeto
     driver: bridge  # Tipo de rede

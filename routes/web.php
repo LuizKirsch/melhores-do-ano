@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Admin\Home as AdminHome;
+use App\Livewire\Public\Vote;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -15,10 +16,6 @@ Route::get('/', function () {
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
-
-Route::get('admin/home', AdminHome::class)
-    ->middleware(['auth', 'verified'])
-    ->name('admin.home');
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
