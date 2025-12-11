@@ -23,6 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin',
     ];
 
     /**
@@ -47,6 +48,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 
@@ -60,5 +62,21 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Get user votes
+     */
+    public function votes()
+    {
+        return $this->hasMany(\App\Models\Vote::class);
+    }
+
+    /**
+     * Check if user has voted for a specific alternative
+     */
+    public function hasVotedFor($alternativeId)
+    {
+        return $this->votes()->where('alternative_id', $alternativeId)->exists();
     }
 }

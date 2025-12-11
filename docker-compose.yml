@@ -18,6 +18,8 @@ services:
       dockerfile: laravel.Dockerfile  # Dockerfile
     volumes:
       - .:/var/www/html  # Monta diretório
+    ports:
+      - "5173:5173"  # Porta do Vite
     depends_on:
       - db  # Depende do db
     environment:

@@ -1,4 +1,17 @@
 <div class="p-6">
+    @if (session()->has('message'))
+        <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                <p class="text-sm font-medium text-green-800 dark:text-green-200">
+                    {{ session('message') }}
+                </p>
+            </div>
+        </div>
+    @endif
+
     <div class="mb-8">
         <h2 class="text-2xl font-bold text-zinc-900 dark:text-white mb-6">Criar Nova Alternativa</h2>
         <form wire:submit="createAlternative" class="flex gap-3">
@@ -30,10 +43,18 @@
             <div>
                 <h3 class="text-sm font-medium text-blue-900 dark:text-blue-200">Controle de Votação</h3>
                 <p class="text-xs text-blue-700 dark:text-blue-300">
-                    Gerencie quais alternativas estão liberadas para votação. Alternativas inativas não aparecem para os usuários.
+                    Gerencie quais alternativas estão liberadas para votação. Alternativas inativas não aparecem para os usuários.<br>
+                    <strong>Importante:</strong> Apenas uma alternativa pode estar ativa por vez. Ao ativar uma, todas as outras são automaticamente desativadas.
                 </p>
             </div>
             <div class="flex flex-col sm:flex-row gap-2 text-xs">
+                <a href="{{ route('admin.winners') }}"
+                   class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-lg">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    🏆 Ver Vencedores
+                </a>
                 <div class="flex items-center gap-2 bg-white dark:bg-zinc-800 px-3 py-2 rounded border">
                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                         {{ $alternatives->where('active', true)->count() }} Ativas
@@ -88,6 +109,7 @@
                                     variant="primary"
                                     icon="play"
                                     size="sm"
+                                    wire:confirm="Ativar esta alternativa? Todas as outras alternativas ativas serão automaticamente desativadas, pois apenas uma pode estar ativa por vez."
                                 >
                                     Liberar Votação
                                 </flux:button>

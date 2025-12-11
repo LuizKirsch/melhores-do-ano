@@ -6,6 +6,7 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -77,7 +78,24 @@ class FortifyServiceProvider extends ServiceProvider
     private function configureRedirects(): void
     {
         Fortify::redirects('login', function () {
-            return request()->session()->pull('url.intended', '/admin/home');
+            $user = Auth::user();
+            $intended = request()->session()->pull('url.intended');
+
+            // Se há uma URL pretendida (usuário tentou acessar uma página específica)
+            if ($intended) {
+                // Se não é admin tentando acessar área admin, redireciona para dashboard de usuário
+                if (str_contains($intended, '/admin/') && !$user->is_admin) {
+                    return '/user/dashboard';
+                }
+                return $intended;
+            }
+
+            // Redirecionamento padrão baseado no tipo de usuário
+            if ($user->is_admin) {
+                return '/admin/home';
+            } else {
+                return '/user/dashboard';
+            }
         });
     }
 }

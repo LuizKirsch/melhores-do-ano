@@ -92,8 +92,32 @@ class Home extends Component
     public function toggleAlternativeStatus($alternativeId)
     {
         $alternative = Alternative::find($alternativeId);
-        $alternative->active = !$alternative->active;
-        $alternative->save();
+
+        // Se está ativando esta alternativa
+        if (!$alternative->active) {
+            // Conta quantas outras alternativas estavam ativas
+            $deactivatedCount = Alternative::where('id', '!=', $alternativeId)
+                ->where('active', true)
+                ->count();
+
+            // Primeiro desativa todas as outras alternativas
+            Alternative::where('id', '!=', $alternativeId)->update(['active' => false]);
+            // Depois ativa esta
+            $alternative->active = true;
+            $alternative->save();
+
+            if ($deactivatedCount > 0) {
+                session()->flash('message', "Alternativa '{$alternative->title}' ativada. {$deactivatedCount} alternativa(s) foram automaticamente desativadas.");
+            } else {
+                session()->flash('message', "Alternativa '{$alternative->title}' ativada com sucesso.");
+            }
+        } else {
+            // Se está desativando, simplesmente desativa
+            $alternative->active = false;
+            $alternative->save();
+            session()->flash('message', "Alternativa '{$alternative->title}' desativada.");
+        }
+
         $this->loadAlternatives();
     }
 
